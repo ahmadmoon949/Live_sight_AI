@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="LiveSight AI is a browser-based real-time object detection camera powered by TensorFlow.js and COCO-SSD."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>LiveSight AI | Real-Time Object Detection Camera</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Browser AI camera</p>
+          <h1>LiveSight AI</h1>
+        </div>
+        <div class="status-pill" id="statusPill" aria-live="polite">
+          <span class="status-dot"></span>
+          <span id="modelStatusText">Initializing</span>
+        </div>
+      </header>
+
+      <main class="app-shell">
+        <section class="camera-section" aria-label="Live camera detection">
+          <div class="camera-toolbar" aria-label="Camera controls">
+            <button class="primary-button" id="startCameraBtn" type="button">
+              Start Camera
+            </button>
+            <button id="stopCameraBtn" type="button" disabled>Stop Camera</button>
+            <button id="switchCameraBtn" type="button" disabled>
+              Switch Camera
+            </button>
+            <button id="snapshotBtn" type="button" disabled>Snapshot</button>
+          </div>
+
+          <div class="stage" id="cameraStage">
+            <div class="loading-overlay" id="loadingOverlay">
+              <div class="spinner" aria-hidden="true"></div>
+              <p>Loading AI model...</p>
+            </div>
+            <video id="cameraVideo" autoplay playsinline muted></video>
+            <canvas id="detectionCanvas"></canvas>
+            <div class="stage-empty" id="stageEmpty">
+              <h2>Camera is off</h2>
+              <p>Start the camera to detect supported COCO objects live.</p>
+            </div>
+          </div>
+
+          <div class="notice" role="note">
+            <strong>Detection limits:</strong>
+            LiveSight AI uses the pretrained COCO-SSD model and can only identify
+            object classes included in that model. It does not recognize every
+            possible object.
+          </div>
+          <p class="error-message" id="cameraError" role="alert"></p>
+        </section>
+
+        <aside class="side-panel" aria-label="Controls and detection dashboard">
+          <section class="panel-section">
+            <div class="section-heading">
+              <h2>Controls</h2>
+            </div>
+
+            <label class="control-row" for="thresholdSlider">
+              <span>Confidence threshold</span>
+              <output id="thresholdValue" for="thresholdSlider">50%</output>
+            </label>
+            <input
+              id="thresholdSlider"
+              type="range"
+              min="0.20"
+              max="0.90"
+              step="0.01"
+              value="0.50"
+            />
+
+            <label class="input-label" for="classFilterInput">Filter one class</label>
+            <div class="input-group">
+              <input
+                id="classFilterInput"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                placeholder="person, bottle, laptop"
+              />
+              <button id="clearFilterBtn" type="button">Clear</button>
+            </div>
+
+            <label class="toggle-row" for="mirrorToggle">
+              <input id="mirrorToggle" type="checkbox" checked />
+              <span>Mirror camera preview</span>
+            </label>
+
+            <div class="button-grid">
+              <button id="exportCsvBtn" type="button">Export CSV</button>
+              <button id="clearHistoryBtn" type="button">Clear History</button>
+            </div>
+          </section>
+
+          <section class="panel-section dashboard">
+            <div class="section-heading">
+              <h2>Dashboard</h2>
+            </div>
+
+            <div class="metric-grid" aria-live="polite">
+              <div class="metric">
+                <span>Total visible</span>
+                <strong id="totalObjects">0</strong>
+              </div>
+              <div class="metric">
+                <span>FPS</span>
+                <strong id="fpsValue">0</strong>
+              </div>
+              <div class="metric">
+                <span>Model</span>
+                <strong id="dashboardModelStatus">Initializing</strong>
+              </div>
+              <div class="metric">
+                <span>Threshold</span>
+                <strong id="dashboardThreshold">50%</strong>
+              </div>
+              <div class="metric wide">
+                <span>Status</span>
+                <strong id="detectionStatus">Idle</strong>
+              </div>
+            </div>
+
+            <div class="object-counts">
+              <h3>Objects</h3>
+              <ul id="objectCountsList"></ul>
+              <p class="empty-text" id="objectsEmptyText">No objects detected.</p>
+            </div>
+
+            <div class="current-detections">
+              <h3>Current Detections</h3>
+              <ul id="currentDetectionsList"></ul>
+              <p class="empty-text" id="currentDetectionsEmptyText">
+                No live detections yet.
+              </p>
+            </div>
+          </section>
+        </aside>
+      </main>
+
+      <section class="history-section" aria-label="Rolling detection history">
+        <div class="section-heading">
+          <h2>Detection History</h2>
+          <span id="historyCount">0 saved</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Timestamp</th>
+                <th scope="col">Detected objects</th>
+                <th scope="col">Total</th>
+                <th scope="col">FPS</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+          <p class="empty-text table-empty" id="historyEmptyText">
+            No detection history yet.
+          </p>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

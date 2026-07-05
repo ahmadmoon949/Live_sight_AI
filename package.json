@@ -1,0 +1,19 @@
+{
+  "name": "live-sight-ai",
+  "version": "1.0.0",
+  "description": "Browser-based real-time object detection camera using TensorFlow.js and COCO-SSD.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "dev:network": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow/tfjs": "^4.22.0",
+    "vite": "^7.0.0"
+  },
+  "devDependencies": {}
+}
