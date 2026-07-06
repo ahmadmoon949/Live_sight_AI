@@ -56,6 +56,7 @@ let modelReady = false;
 init();
 
 function init() {
+  resetMirrorMode();
   bindEvents();
   renderThreshold();
   renderDashboard([], 0);
@@ -76,6 +77,11 @@ function init() {
       updateDetectionStatus('Model unavailable');
       showError(error.message || 'The AI model could not be loaded.');
     });
+}
+
+function resetMirrorMode() {
+  elements.mirrorToggle.checked = false;
+  applyMirrorMode();
 }
 
 function bindEvents() {
@@ -111,7 +117,7 @@ async function startCamera() {
 
   try {
     await camera.start();
-    applyMirrorMode();
+    resetMirrorMode();
     elements.stageEmpty.hidden = true;
     elements.snapshotBtn.disabled = false;
     elements.switchCameraBtn.disabled = false;
@@ -143,7 +149,7 @@ async function switchCamera() {
 
   try {
     await camera.switchCamera();
-    applyMirrorMode();
+    resetMirrorMode();
     updateDetectionStatus(modelReady ? 'Detecting' : 'Waiting for model');
   } catch (error) {
     showError(error.message);
