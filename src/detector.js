@@ -1,6 +1,11 @@
 import '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 
+const MODEL_CONFIG = {
+  base: 'mobilenet_v2',
+};
+const MAX_DETECTIONS = 30;
+
 export class ObjectDetector {
   constructor({ intervalMs = 180 } = {}) {
     this.intervalMs = intervalMs;
@@ -20,11 +25,11 @@ export class ObjectDetector {
     }
 
     this.isLoading = true;
-    onStatus('Loading AI model...');
+    onStatus('Loading high-accuracy AI model...');
 
     try {
-      this.model = await cocoSsd.load();
-      onStatus('Model ready');
+      this.model = await cocoSsd.load(MODEL_CONFIG);
+      onStatus('High-accuracy model ready');
       return this.model;
     } finally {
       this.isLoading = false;
@@ -46,7 +51,7 @@ export class ObjectDetector {
     this.lastDetectionAt = performance.now();
 
     try {
-      const predictions = await this.model.detect(video);
+      const predictions = await this.model.detect(video, MAX_DETECTIONS, threshold);
       const normalizedFilter = classFilter.trim().toLowerCase();
 
       return predictions.filter((prediction) => {
