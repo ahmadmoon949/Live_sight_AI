@@ -17,11 +17,6 @@ export class DetectionOverlay {
     this.video = video;
     this.ctx = canvas.getContext('2d');
     this.labelColors = new Map();
-    this.mirrored = false;
-  }
-
-  setMirrored(mirrored) {
-    this.mirrored = mirrored;
   }
 
   resize() {
@@ -51,11 +46,11 @@ export class DetectionOverlay {
     this.ctx.textBaseline = 'top';
 
     this.#withInstanceNumbers(predictions).forEach((item) =>
-      this.#drawPrediction(this.ctx, item, this.mirrored)
+      this.#drawPrediction(this.ctx, item)
     );
   }
 
-  drawSnapshot(video, predictions, mirrored) {
+  drawSnapshot(video, predictions) {
     this.resize();
 
     const snapshotCanvas = document.createElement('canvas');
@@ -67,25 +62,18 @@ export class DetectionOverlay {
     snapshotCtx.font = `${Math.max(14, Math.round(snapshotCanvas.width / 55))}px Inter, system-ui, sans-serif`;
     snapshotCtx.textBaseline = 'top';
 
-    if (mirrored) {
-      snapshotCtx.translate(snapshotCanvas.width, 0);
-      snapshotCtx.scale(-1, 1);
-    }
-
     snapshotCtx.drawImage(video, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
-    if (mirrored) snapshotCtx.setTransform(1, 0, 0, 1, 0, 0);
 
     this.#withInstanceNumbers(predictions).forEach((item) =>
-      this.#drawPrediction(snapshotCtx, item, mirrored)
+      this.#drawPrediction(snapshotCtx, item)
     );
 
     return snapshotCanvas;
   }
 
-  #drawPrediction(ctx, item, mirrored) {
+  #drawPrediction(ctx, item) {
     const { prediction, instanceNumber, instanceTotal } = item;
-    const [sourceX, y, width, height] = prediction.bbox;
-    const x = mirrored ? this.canvas.width - sourceX - width : sourceX;
+    const [x, y, width, height] = prediction.bbox;
     const color = this.#colorForLabel(prediction.class);
     const suffix = instanceTotal > 1 ? ` #${instanceNumber}` : '';
     const label = `${prediction.class}${suffix} ${Math.round(prediction.score * 100)}%`;

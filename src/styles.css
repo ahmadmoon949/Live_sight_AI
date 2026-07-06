@@ -211,10 +211,6 @@ canvas {
   pointer-events: none;
 }
 
-.stage.is-mirrored video {
-  transform: scaleX(-1);
-}
-
 .stage-empty,
 .loading-overlay {
   position: absolute;

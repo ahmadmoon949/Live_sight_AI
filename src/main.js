@@ -22,7 +22,6 @@ const elements = {
   dashboardThreshold: document.querySelector('#dashboardThreshold'),
   classFilterInput: document.querySelector('#classFilterInput'),
   clearFilterBtn: document.querySelector('#clearFilterBtn'),
-  mirrorToggle: document.querySelector('#mirrorToggle'),
   exportCsvBtn: document.querySelector('#exportCsvBtn'),
   clearHistoryBtn: document.querySelector('#clearHistoryBtn'),
   totalObjects: document.querySelector('#totalObjects'),
@@ -56,7 +55,6 @@ let modelReady = false;
 init();
 
 function init() {
-  resetMirrorMode();
   bindEvents();
   renderThreshold();
   renderDashboard([], 0);
@@ -79,11 +77,6 @@ function init() {
     });
 }
 
-function resetMirrorMode() {
-  elements.mirrorToggle.checked = false;
-  applyMirrorMode();
-}
-
 function bindEvents() {
   elements.startCameraBtn.addEventListener('click', startCamera);
   elements.stopCameraBtn.addEventListener('click', stopCamera);
@@ -96,7 +89,6 @@ function bindEvents() {
     elements.classFilterInput.focus();
     renderDashboard(latestPredictions, latestFps);
   });
-  elements.mirrorToggle.addEventListener('change', applyMirrorMode);
   elements.exportCsvBtn.addEventListener('click', exportHistory);
   elements.clearHistoryBtn.addEventListener('click', () => {
     history.clear();
@@ -117,7 +109,6 @@ async function startCamera() {
 
   try {
     await camera.start();
-    resetMirrorMode();
     elements.stageEmpty.hidden = true;
     elements.snapshotBtn.disabled = false;
     elements.switchCameraBtn.disabled = false;
@@ -149,7 +140,6 @@ async function switchCamera() {
 
   try {
     await camera.switchCamera();
-    resetMirrorMode();
     updateDetectionStatus(modelReady ? 'Detecting' : 'Waiting for model');
   } catch (error) {
     showError(error.message);
@@ -313,8 +303,7 @@ function downloadSnapshot() {
 
   const snapshotCanvas = overlay.drawSnapshot(
     elements.video,
-    latestPredictions,
-    elements.mirrorToggle.checked
+    latestPredictions
   );
   const link = document.createElement('a');
   const timestamp = new Date().toISOString().replaceAll(':', '-').replace(/\.\d+Z$/, 'Z');
@@ -331,13 +320,6 @@ function exportHistory() {
   link.href = URL.createObjectURL(blob);
   link.click();
   URL.revokeObjectURL(link.href);
-}
-
-function applyMirrorMode() {
-  const mirrored = elements.mirrorToggle.checked;
-  elements.stage.classList.toggle('is-mirrored', mirrored);
-  overlay.setMirrored(mirrored);
-  overlay.draw(latestPredictions);
 }
 
 function updateCameraState(stream) {
